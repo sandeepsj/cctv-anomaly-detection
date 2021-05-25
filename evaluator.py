@@ -5,7 +5,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from numpy.core.fromnumeric import shape
+from numpy.core.fromnumeric import mean, shape
+import pickle
+from target import TARGET
 
 model_name = Config.MODEL_NAME
 
@@ -30,6 +32,7 @@ def evaluate():
 
     # test
     if Config.TESTSET_STRUCTURE == "dict":
+        result = {}
         print("testset shape : ", shape(x_test))
         for dir in x_test:
             print("computing anomaly score and plotting for >>> " + dir)
@@ -41,7 +44,14 @@ def evaluate():
                 x = np.expand_dims(x, axis=0)
                 loss = model.test_on_batch(x, x)
                 losses.append(loss)
+            result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
+        resFile = open(Config.RESULT_PATH+"/result", 'wb')
+        print("about to dumb results")
+        pickle.dump(result, resFile)
+        print("Results dumped to result")
+        resFile.close()
+        getAccuracy()
     else:
         print("testset shape : ", shape(x_test))
 
@@ -55,9 +65,52 @@ def evaluate():
             losses.append(loss)
         plotLoss(losses)
 
+def getAccuracy():
+    resFile = open(Config.RESULT_PATH+"/result", "rb")
+    results = pickle.load(resFile)
+    resFile.close()
+    # target = open(Config.TARGET_PATH, "rb") need to add .m file support\
+    def validate(frame, t):
+        for (start, end) in t:
+            if frame>=start and frame<=end:
+                return True
+        return False
+    cnt = 0
+    TP = 0
+    FN = 0
+    TOTAL = 0
+    for test in results:
+        cur_TP = 0
+        cur_FN = 0
+        cur_TOTAL = 0
+        target = TARGET[cnt]
+        result = results[test]
+        if (test[-3:] == "_gt"):
+            continue
+        threshold = mean(result) * 1.1
+        print("threshold of ", test, " >>> ", threshold)
+        for cost in result:
+            if cost >= threshold:
+                if validate(cnt, target):
+                    TP += 1
+                    cur_TP += 1
+            else:
+                if not validate(cnt, target):
+                    FN += 1
+                    cur_FN += 1
+            TOTAL += 1
+            cur_TOTAL += 1
+        cnt += 1
+        cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
+        print("accuracy for "+ test + " >>> ", cur_accuracy )
+    accuracy = (TP + FN)/(TOTAL)
+    print("Overall Accuracy of the model >>> ", accuracy)
+    return accuracy
     
-
-evaluate()
+if Config.LOAD_RESULT_FROM_CACHE:
+    getAccuracy()
+else:
+    evaluate()
 
 # temp = getDataSet.get_dataset()
 # print("loaded dataset")

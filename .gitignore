@@ -131,4 +131,5 @@ dmypy.json
 # cached datasets
 cachedataset
 cachetestset
-results/
+results/*
+./results/*
