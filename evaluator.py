@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from numpy.core.fromnumeric import mean, shape
 import pickle
 from target import TARGET
+import display
 
 model_name = Config.MODEL_NAME
 
@@ -30,6 +31,16 @@ def evaluate():
         plt.savefig(path)
         plt.clf()
 
+    def getFileName(frameCount):
+        filename = "000.tif" 
+        cntstr = str(frameCount)
+        if len(cntstr) == 1:
+            filename = "00"+cntstr+".tif"
+        elif len(cntstr) == 2:
+            filename = "0"+cntstr+".tif"
+        else:
+            filename = cntstr+".tif"
+        return filename
     # test
     if Config.TESTSET_STRUCTURE == "dict":
         result = {}
@@ -40,10 +51,16 @@ def evaluate():
             cur_test = np.array(x_test[dir])
             cur_test = cur_test.reshape(-1, 128,128,1)
             losses = []
+            frameCount = 1
+            imagePaths = []
             for x in cur_test:
                 x = np.expand_dims(x, axis=0)
                 loss = model.test_on_batch(x, x)
                 losses.append(loss)
+                # display frame and loss and wait for 0.1 sec
+                imagePaths.append(Config.TESTSET_PATH + "/"+dir+"/"+getFileName(frameCount))
+                frameCount += 1
+            display.showImageVSPrediction(imagePaths, losses)
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
         resFile = open(Config.RESULT_PATH+"/result", 'wb')
@@ -65,16 +82,39 @@ def evaluate():
             losses.append(loss)
         plotLoss(losses)
 
+
+def validate(frameRCost, t):
+        for (start, end) in t:
+            if frameRCost>=start and frameRCost<=end:
+                return True
+        return False
+
+def getSingleTestAccuracy(testName, result, target):
+    cur_TP = 0
+    cur_FN = 0
+    cur_TOTAL = 0
+    if (testName[-3:] == "_gt"):
+        return -1
+    threshold = mean(result) * 1.1
+    print("threshold of ", testName, " >>> ", threshold)
+    for cost in result:
+        if cost >= threshold:
+            if validate(cost, target):
+                cur_TP += 1
+        else:
+            if not validate(cost, target):
+                cur_FN += 1
+        cur_TOTAL += 1
+    cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
+    print("accuracy for "+ testName + " >>> ", cur_accuracy )
+    return cur_accuracy
+
 def getAccuracy():
     resFile = open(Config.RESULT_PATH+"/result", "rb")
     results = pickle.load(resFile)
     resFile.close()
     # target = open(Config.TARGET_PATH, "rb") need to add .m file support\
-    def validate(frame, t):
-        for (start, end) in t:
-            if frame>=start and frame<=end:
-                return True
-        return False
+    
     cnt = 0
     TP = 0
     FN = 0
@@ -91,11 +131,11 @@ def getAccuracy():
         print("threshold of ", test, " >>> ", threshold)
         for cost in result:
             if cost >= threshold:
-                if validate(cnt, target):
+                if validate(cost, target):
                     TP += 1
                     cur_TP += 1
             else:
-                if not validate(cnt, target):
+                if not validate(cost, target):
                     FN += 1
                     cur_FN += 1
             TOTAL += 1

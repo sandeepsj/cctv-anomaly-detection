@@ -6,7 +6,7 @@ TARGET_PATH = "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Datas
 SINGLE_TEST_PATH = "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test/Test001"
 TESTSET_STRUCTURE = "dict" # ["dict", "array_seq"]
 RELOAD_DATASET = False
-RELOAD_TESTSET = True
+RELOAD_TESTSET = False
 RELOAD_MODEL = False
 USE_OPTICAL_FLOW = False
 MODEL_NAME = "convolutional_autoencoder" # ['autoencoder', 'deep_autoencoder', 'convolutional_autoencoder']
@@ -18,4 +18,4 @@ OPTIMIZER = "adam" # ['adam','sgd','adagrad']
 LOSS = "mean_squared_error" # ['mean_squared_error', 'binary_crossentropy'], default='mean_squared_error')
 TEST_SAMPLES = 50
 RESULT_PATH = "/home/sandeepsj/cctv-anomaly-detection/results"
-LOAD_RESULT_FROM_CACHE = True
+LOAD_RESULT_FROM_CACHE = False
