@@ -42,10 +42,12 @@ def evaluate():
             filename = cntstr+".tif"
         return filename
     # test
-    if Config.TESTSET_STRUCTURE == "dict":
+    if Config.TESTSET_STRUCTURE == "dict" and not Config.CALCULATE_THRESHOLD:
         result = {}
         print("testset shape : ", shape(x_test))
         for dir in x_test:
+            if Config.USE_SINGLE_TEST_CASE and dir != Config.SINGLE_TEST_CASE_NAME:
+                continue
             print("computing anomaly score and plotting for >>> " + dir)
             # compule loss for each test sample
             cur_test = np.array(x_test[dir])
@@ -60,7 +62,8 @@ def evaluate():
                 # display frame and loss and wait for 0.1 sec
                 imagePaths.append(Config.TESTSET_PATH + "/"+dir+"/"+getFileName(frameCount))
                 frameCount += 1
-            display.showImageVSPrediction(imagePaths, losses)
+            if (Config.DISPAY_OUTPUT):
+                display.showImageVSPrediction(imagePaths, losses)
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
         resFile = open(Config.RESULT_PATH+"/result", 'wb')
@@ -69,7 +72,7 @@ def evaluate():
         print("Results dumped to result")
         resFile.close()
         getAccuracy()
-    else:
+    elif not Config.CALCULATE_THRESHOLD:
         print("testset shape : ", shape(x_test))
 
         x_test = x_test.reshape(-1,128,128,1)
@@ -81,6 +84,20 @@ def evaluate():
             loss = model.test_on_batch(x, x)
             losses.append(loss)
         plotLoss(losses)
+    else:
+        print("testset shape : ", shape(x_test))
+
+        x_test = x_test.reshape(-1,128,128,1)
+        x_concat = np.concatenate([x_test], axis=0)
+        losses = []
+        for x in x_concat:
+            # compule loss for each test sample
+            x = np.expand_dims(x, axis=0)
+            loss = model.test_on_batch(x, x)
+            losses.append(loss)
+        threshold = mean(losses)
+        print("Threshold value is >>> ", threshold)
+        print("Padded Threshold value is >>> ", threshold*Config.THRESHOLD_SCALING_FACTOR)
 
 
 def validate(frameRCost, t):
@@ -89,25 +106,6 @@ def validate(frameRCost, t):
                 return True
         return False
 
-def getSingleTestAccuracy(testName, result, target):
-    cur_TP = 0
-    cur_FN = 0
-    cur_TOTAL = 0
-    if (testName[-3:] == "_gt"):
-        return -1
-    threshold = mean(result) * 1.1
-    print("threshold of ", testName, " >>> ", threshold)
-    for cost in result:
-        if cost >= threshold:
-            if validate(cost, target):
-                cur_TP += 1
-        else:
-            if not validate(cost, target):
-                cur_FN += 1
-        cur_TOTAL += 1
-    cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
-    print("accuracy for "+ testName + " >>> ", cur_accuracy )
-    return cur_accuracy
 
 def getAccuracy():
     resFile = open(Config.RESULT_PATH+"/result", "rb")
@@ -127,7 +125,9 @@ def getAccuracy():
         result = results[test]
         if (test[-3:] == "_gt"):
             continue
-        threshold = mean(result) * 1.1
+        threshold = Config.THRESHOLD_VALUE * Config.THRESHOLD_SCALING_FACTOR
+        if threshold == None:
+            threshold = mean(result) * Config.THRESHOLD_SCALING_FACTOR
         print("threshold of ", test, " >>> ", threshold)
         for cost in result:
             if cost >= threshold:
@@ -151,6 +151,30 @@ if Config.LOAD_RESULT_FROM_CACHE:
     getAccuracy()
 else:
     evaluate()
+
+
+# def getSingleTestAccuracy(testName, result, target):
+#     cur_TP = 0
+#     cur_FN = 0
+#     cur_TOTAL = 0
+#     if (testName[-3:] == "_gt"):
+#         return -1
+#     threshold = Config.THRESHOLD_VALUE * Config.THRESHOLD_SCALING_FACTOR
+#     if threshold == None:
+#         threshold = mean(result) * Config.THRESHOLD_SCALING_FACTOR
+    
+#     print("threshold of ", testName, " >>> ", threshold)
+#     for cost in result:
+#         if cost >= threshold:
+#             if validate(cost, target):
+#                 cur_TP += 1
+#         else:
+#             if not validate(cost, target):
+#                 cur_FN += 1
+#         cur_TOTAL += 1
+#     cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
+#     print("accuracy for "+ testName + " >>> ", cur_accuracy )
+#     return cur_accuracy
 
 # temp = getDataSet.get_dataset()
 # print("loaded dataset")

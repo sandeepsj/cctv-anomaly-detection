@@ -57,9 +57,12 @@ def get_dataset(re=Config.RELOAD_DATASET):
 def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
     cache = shelve.open(Config.CACHE_PATH + "testset")
     if not re:
-        if structure == "dict":
-            return cache["testset"]
-        return  np.array(cache["testset"])
+        if Config.CALCULATE_THRESHOLD:
+            return get_dataset()
+        else:
+            if structure == "dict":
+                return cache["testset"]
+            return  np.array(cache["testset"])
     opticalFlowClips = {}
 
     def savetocache():
