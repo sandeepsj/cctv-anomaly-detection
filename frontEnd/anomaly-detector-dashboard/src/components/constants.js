@@ -1,0 +1,9 @@
+const CONST = {
+    PAGES_DASHBOARD : 0,
+    PAGES_TRAINER : 1,
+    PAGES_DETECTOR : 2,
+    PAGES_PATH_CONFIGS : 3,
+    PAGES_MODEL_CONFIGS : 4,
+    PAGES_OTHER_CONFIGS : 5
+}
+export default CONST;
