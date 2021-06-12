@@ -12,6 +12,13 @@ const getSingleTestCaseFrame = function (configs, curFrame) {
     const fileName = curFrame +".tif";
     return configs.TESTSET_PATH + "/" + configs.SINGLE_TEST_CASE_NAME + "/" + fileName;
 }
-
-export { defConfig, getSingleTestCaseFrame };
+const getSingleTestCaseFileName =  function (configs, curFrame, dirPath) {
+    curFrame = curFrame + "";
+    for (var i = 0; i<=3-curFrame.length; i++) {
+        curFrame = "0" + curFrame;
+    }
+    const fileName = curFrame +".tif";
+    return dirPath+ "/" + configs.SINGLE_TEST_CASE_NAME + "/" + fileName;
+}
+export { defConfig, getSingleTestCaseFileName };
 

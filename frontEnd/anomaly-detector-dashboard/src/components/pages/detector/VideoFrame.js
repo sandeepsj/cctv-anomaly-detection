@@ -1,9 +1,10 @@
-import { Card, CardActionArea, CardMedia, Link } from '@material-ui/core';
+import { Card, Link } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { getSingleTestCaseFrame } from "./../../Configs";
+import { getSingleTestCaseFileName } from "./../../Configs";
 import Title from './Title';
+var Tiff = require('tiff.js');
 
 function preventDefault(event) {
   event.preventDefault();
@@ -18,26 +19,32 @@ const useStyles = makeStyles({
 export default function VideoFrames(props) {
   const classes = useStyles();
   const configs = props.configs;
+
+  const filename = getSingleTestCaseFileName(configs, 1, "Test");
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'arraybuffer';
+  xhr.open('GET', filename);
+  xhr.onload = function (e) {
+    var tiff = new Tiff({ buffer: xhr.response });
+    var canvas = tiff.toCanvas();
+    const imageurl = canvas.toDataURL();
+    var img = document.createElement('img');
+    img.src = imageurl;
+    img.width = 580;
+    img.height =380;
+    document.getElementById("videoframe").append(img);
+  };
+  xhr.send();
   return (
     <React.Fragment>
       <Title>Video Streaming</Title>
       <Typography component="p" variant="h4">
         {props.myVal}
       </Typography>
-      <Typography color="textSecondary" className={classes.depositContext}>
-        The Video you set in Config
         <Card>
-          <CardActionArea>
-            <CardMedia
-              component="img"
-              alt="Selected Test case not available"
-              height="140"
-              image={getSingleTestCaseFrame(configs, 1)}
-              title="Selected Test Case"
-            />
-            <img src={getSingleTestCaseFrame(configs, 1)}/>
-          </CardActionArea></Card>
-      </Typography>
+          <div id="videoframe">
+          </div>
+        </Card>
       <div>
         <Link color="primary" href="#" onClick={preventDefault}>
           Show Video Properies
@@ -46,3 +53,4 @@ export default function VideoFrames(props) {
     </React.Fragment>
   );
 }
+
