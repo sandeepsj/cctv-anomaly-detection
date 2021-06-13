@@ -133,7 +133,7 @@ export default function Main() {
       setTimeout(() => {
         setCurFrame(cur + 1);
         playVideo(cur+1, end);
-      }, 200);
+      }, 50);
     }
   }
 
