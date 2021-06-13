@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import axios from "axios";
 import clsx from 'clsx';
 import React from 'react';
 import { defConfig } from "./Configs";
@@ -112,13 +113,31 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
+function createDataPoint(frame, reconstructionCost) {
+  return { frame, reconstructionCost };
+}
 
 export default function Main() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const [page, setPage] = React.useState(CONST.PAGES_DASHBOARD)
-  const [configs, setConfig] = React.useState(defConfig)
+  const [page, setPage] = React.useState(CONST.PAGES_DASHBOARD);
+  const [configs, setConfig] = React.useState(defConfig);
+  const [curFrame, setCurFrame] = React.useState(1);
+  const [graphData, setGraphData] = React.useState([])
+
+  const startVideo = () => {
+    if (curFrame < 200) {
+      axios.post('/getRecustructionCost', {frame: curFrame})
+        .then(
+          response => {
+            graphData.push(createDataPoint(response.data.frame, response.data.rc));
+            setGraphData([...graphData]);
+          }
+        );
+      setCurFrame(curFrame + 1);
+    }
+
+  }
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -126,7 +145,6 @@ export default function Main() {
     setOpen(false);
   };
   const handleSetPage = (page) => {
-    console.log("selected page", page);
     setPage(page)
   }
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -175,15 +193,15 @@ export default function Main() {
         <div className={classes.appBarSpacer} />
 
         {page === CONST.PAGES_MODEL_CONFIGS ?
-          <ModelConfigs classes={classes} configs = {configs} setConfig = {setConfig} />
+          <ModelConfigs classes={classes} configs={configs} setConfig={setConfig} />
           : page === CONST.PAGES_PATH_CONFIGS ?
-            <PathConfigs classes={classes} configs = {configs} setConfig = {setConfig} />
+            <PathConfigs classes={classes} configs={configs} setConfig={setConfig} />
             : page === CONST.PAGES_OTHER_CONFIGS ?
-              <OtherConfigs classes={classes} configs = {configs} setConfig = {setConfig} />
+              <OtherConfigs classes={classes} configs={configs} setConfig={setConfig} />
               : page === CONST.PAGES_DETECTOR ?
-                <Detector fixedHeightPaper={fixedHeightPaper} classes={classes} configs = {configs} setConfig = {setConfig} />
+                <Detector graphData={graphData} fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} curFrame={curFrame} startVideo={startVideo} />
                 :
-                <Dashboard fixedHeightPaper={fixedHeightPaper} classes={classes} configs = {configs} setConfig = {setConfig} />
+                <Dashboard fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} />
 
 
         }

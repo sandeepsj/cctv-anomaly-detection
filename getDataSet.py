@@ -1,10 +1,13 @@
 import shelve
 from os import listdir
-from os.path import join, isdir
-import numpy as np
-import Config
+from os.path import isdir, join
+
 import cv2
+import numpy as np
+
+import Config
 import processor
+
 
 def get_dataset(re=Config.RELOAD_DATASET):
     cache = shelve.open(Config.CACHE_PATH + "dataset")
@@ -127,3 +130,12 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
                     clips.extend(all_frames)
         savetocache()
         return np.array(clips)
+
+
+def get_single_frame(filename):
+    path = Config.TESTSET_PATH +"/" + Config.SINGLE_TEST_CASE_NAME + "/" + filename
+    img = cv2.imread(path)
+    img.resize((128, 128))
+    img = np.array(img, dtype=np.float32)
+    img = img / 256.0
+    return img

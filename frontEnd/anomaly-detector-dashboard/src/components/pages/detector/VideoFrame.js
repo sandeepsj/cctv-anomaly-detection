@@ -20,7 +20,7 @@ export default function VideoFrames(props) {
   const classes = useStyles();
   const configs = props.configs;
 
-  const filename = getSingleTestCaseFileName(configs, 1, "Test");
+  const filename = getSingleTestCaseFileName(configs, props.curFrame, "Test");
   var xhr = new XMLHttpRequest();
   xhr.responseType = 'arraybuffer';
   xhr.open('GET', filename);
@@ -32,7 +32,9 @@ export default function VideoFrames(props) {
     img.src = imageurl;
     img.width = 580;
     img.height =380;
-    document.getElementById("videoframe").append(img);
+    img.id = "frame";
+    document.getElementById("videoframe").replaceChild(img, document.getElementById("frame"));
+    
   };
   xhr.send();
   return (
@@ -43,6 +45,7 @@ export default function VideoFrames(props) {
       </Typography>
         <Card>
           <div id="videoframe">
+            <img src="" id="frame"/>
           </div>
         </Card>
       <div>

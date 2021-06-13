@@ -1,16 +1,28 @@
-import getDataSet
-import Config
-import getModel
-import numpy as np
 import matplotlib
+import numpy as np
+
+import Config
+import getDataSet
+import getModel
+
 matplotlib.use('Agg')
+import pickle
+
 import matplotlib.pyplot as plt
 from numpy.core.fromnumeric import mean, shape
-import pickle
-from target import TARGET
+
 import display
+from target import TARGET
 
 model_name = Config.MODEL_NAME
+
+def getSingleFrameCost(model, fileName):
+    cur_test = getDataSet.get_single_frame(fileName)
+    cur_test = cur_test.reshape(128,128,1)
+    x = cur_test
+    x = np.expand_dims(x, axis=0)
+    loss = model.test_on_batch(x, x)
+    return loss
 
 def evaluate():
     x_train = getDataSet.get_dataset()

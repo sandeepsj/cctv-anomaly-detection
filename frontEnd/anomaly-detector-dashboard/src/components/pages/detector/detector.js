@@ -1,4 +1,4 @@
-import { Container, Grid, Paper } from "@material-ui/core";
+import { Button, Container, Grid, Paper } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Chart from "./Chart";
@@ -23,15 +23,24 @@ export default function Detector(props) {
             {/* Recent Deposits */}
             <Grid item xs={12} md={6} lg={6}>
                 <Paper className={fixedHeightPaper}>
-                    <VideoFrames curFrame={10} configs = {configs} />
+                    <VideoFrames curFrame={props.curFrame} configs = {configs} />
                 </Paper>
             </Grid>
             {/* Chart */}
             <Grid item xs={12} md={6} lg={6}>
                 <Paper className={fixedHeightPaper}>
-                    <Chart />
+                    <Chart graphData = {props.graphData}/>
                 </Paper>
             </Grid>
+            <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                        onClick={props.startVideo}
+                    >
+                        Detect Anomaly
+                    </Button>
             {/* Recent Orders */}
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
