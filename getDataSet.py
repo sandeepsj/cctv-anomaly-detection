@@ -132,9 +132,9 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
         return np.array(clips)
 
 
-def get_single_frame(filename):
-    path = Config.TESTSET_PATH +"/" + Config.SINGLE_TEST_CASE_NAME + "/" + filename
-    img = cv2.imread(path)
+def get_single_frame(filename, single_test_case_name, test_set_path):
+    path = Config.TESTSET_PATH +"/" + single_test_case_name + "/" + filename
+    img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
     img.resize((128, 128))
     img = np.array(img, dtype=np.float32)
     img = img / 256.0

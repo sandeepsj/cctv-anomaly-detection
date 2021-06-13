@@ -16,8 +16,8 @@ from target import TARGET
 
 model_name = Config.MODEL_NAME
 
-def getSingleFrameCost(model, fileName):
-    cur_test = getDataSet.get_single_frame(fileName)
+def getSingleFrameCost(model, fileName, single_test_case_name, test_set_path):
+    cur_test = getDataSet.get_single_frame(fileName, single_test_case_name, test_set_path)
     cur_test = cur_test.reshape(128,128,1)
     x = cur_test
     x = np.expand_dims(x, axis=0)
@@ -158,11 +158,12 @@ def getAccuracy():
     accuracy = (TP + FN)/(TOTAL)
     print("Overall Accuracy of the model >>> ", accuracy)
     return accuracy
-    
-if Config.LOAD_RESULT_FROM_CACHE:
-    getAccuracy()
-else:
-    evaluate()
+
+if __name__ == "__main__":
+    if Config.LOAD_RESULT_FROM_CACHE:
+        getAccuracy()
+    else:
+        evaluate()
 
 
 # def getSingleTestAccuracy(testName, result, target):

@@ -116,25 +116,49 @@ const useStyles = makeStyles((theme) => ({
 function createDataPoint(frame, reconstructionCost) {
   return { frame, reconstructionCost };
 }
+const firstAnomalousFrame = {};
 
 export default function Main() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const [page, setPage] = React.useState(CONST.PAGES_DASHBOARD);
+  const [page, setPage] = React.useState(CONST.PAGES_DETECTOR);
   const [configs, setConfig] = React.useState(defConfig);
   const [curFrame, setCurFrame] = React.useState(1);
   const [graphData, setGraphData] = React.useState([])
+  const [anomalyRange, setAnomalyRange] = React.useState({})
+  
+  const playVideo = (cur, end) =>{
+    console.log(cur, end, "here");
+    if(cur<=end){
+      setTimeout(() => {
+        setCurFrame(cur + 1);
+        playVideo(cur+1, end);
+      }, 200);
+    }
+  }
 
-  const startVideo = () => {
-    if (curFrame < 200) {
-      axios.post('/getRecustructionCost', {frame: curFrame})
-        .then(
-          response => {
-            graphData.push(createDataPoint(response.data.frame, response.data.rc));
-            setGraphData([...graphData]);
+  const startVideoAndDetectAnomaly = (frame) => {
+    if (frame < 200) {
+      axios.post('/getRecustructionCost', {frame: frame, test_set_path: configs.TESTSET_PATH, test_case:configs.SINGLE_TEST_CASE_NAME})
+      .then(
+        response => {
+          const frameCount = response.data.frame;
+          const rc = response.data.rc;
+          graphData.push(createDataPoint(frameCount, rc));
+          if(rc>defConfig.THRESHOLD_VALUE){
+            firstAnomalousFrame[frameCount] = firstAnomalousFrame[frameCount-1];
+            if (firstAnomalousFrame[frameCount] === undefined){
+              firstAnomalousFrame[frameCount] = frameCount;
+            }
+            anomalyRange[firstAnomalousFrame[frameCount]] = frameCount;
           }
-        );
-      setCurFrame(curFrame + 1);
+          setAnomalyRange(anomalyRange);
+          setGraphData([...graphData]);
+          setCurFrame(frame + 1);
+          startVideoAndDetectAnomaly(frame+1)
+        }
+      );      
+      // setTimeout(() => , 300);
     }
 
   }
@@ -164,7 +188,7 @@ export default function Main() {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            Anomaly Detection from CCTV footage using Machine learning model.
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">
@@ -199,7 +223,7 @@ export default function Main() {
             : page === CONST.PAGES_OTHER_CONFIGS ?
               <OtherConfigs classes={classes} configs={configs} setConfig={setConfig} />
               : page === CONST.PAGES_DETECTOR ?
-                <Detector graphData={graphData} fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} curFrame={curFrame} startVideo={startVideo} />
+                <Detector graphData={graphData} fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} curFrame={curFrame} startVideoAndDetectAnomaly={startVideoAndDetectAnomaly} anomalyRange={anomalyRange} playVideo={playVideo}/>
                 :
                 <Dashboard fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} />
 

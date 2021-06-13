@@ -6,7 +6,6 @@ import Title from './Title';
 
 export default function Chart(props) {
   const theme = useTheme();
-  console.log(props.graphData)
   return (
     <React.Fragment>
       <Title>Frame vs Anomaly Score </Title>
@@ -21,7 +20,7 @@ export default function Chart(props) {
           }}
         >
           <XAxis dataKey="frame" stroke={theme.palette.text.secondary} />
-          <YAxis stroke={theme.palette.text.secondary}>
+          <YAxis stroke={theme.palette.text.secondary} domain={[0.003, 0.007]}>
             <Label
               angle={270}
               position="left"

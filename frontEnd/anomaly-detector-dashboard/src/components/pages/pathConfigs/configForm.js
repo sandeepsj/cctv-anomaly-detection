@@ -29,6 +29,10 @@ export default function otherConfigs(props) {
                                 label="TESTSET_PATH"
                                 autoFocus
                                 defaultValue={configs.TESTSET_PATH}
+                                onChange={(event)=>{
+                                    configs.TESTSET_PATH = event.target.value;
+                                    props.setConfig(configs)
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
@@ -39,6 +43,10 @@ export default function otherConfigs(props) {
                                 label="SINGLE_TEST_CASE_NAME"
                                 name="SINGLE_TEST_CASE_NAME"
                                 defaultValue={configs.SINGLE_TEST_CASE_NAME}
+                                onChange={(event)=>{
+                                    configs.SINGLE_TEST_CASE_NAME = event.target.value;
+                                    props.setConfig(configs)
+                                }}
                             />
                         </Grid>
                     </Grid>

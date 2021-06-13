@@ -1,8 +1,8 @@
 import { Button, Container, Grid, Paper } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import AnomalyTable from "./anomalyTable";
 import Chart from "./Chart";
-import Orders from "./Orders";
 import VideoFrames from "./VideoFrame";
 
 const useStyles = makeStyles({
@@ -37,14 +37,14 @@ export default function Detector(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={props.startVideo}
+                        onClick={() => props.startVideoAndDetectAnomaly(props.curFrame)}
                     >
                         Detect Anomaly
                     </Button>
             {/* Recent Orders */}
             <Grid item xs={12}>
                 <Paper className={classes.paper}>
-                    <Orders />
+                    <AnomalyTable anomalyRange={props.anomalyRange} playVideo={props.playVideo}/>
                 </Paper>
             </Grid>
         </Grid>
