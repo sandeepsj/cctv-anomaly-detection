@@ -18,7 +18,7 @@ model_name = Config.MODEL_NAME
 
 def getSingleFrameCost(model, fileName, single_test_case_name, test_set_path):
     cur_test = getDataSet.get_single_frame(fileName, single_test_case_name, test_set_path)
-    cur_test = cur_test.reshape(128,128,1)
+    cur_test = cur_test.reshape(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     x = cur_test
     x = np.expand_dims(x, axis=0)
     loss = model.test_on_batch(x, x)
@@ -63,7 +63,7 @@ def evaluate():
             print("computing anomaly score and plotting for >>> " + dir)
             # compule loss for each test sample
             cur_test = np.array(x_test[dir])
-            cur_test = cur_test.reshape(-1, 128,128,1)
+            cur_test = cur_test.reshape(-1, Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
             losses = []
             frameCount = 1
             imagePaths = []
@@ -87,7 +87,7 @@ def evaluate():
     elif not Config.CALCULATE_THRESHOLD:
         print("testset shape : ", shape(x_test))
 
-        x_test = x_test.reshape(-1,128,128,1)
+        x_test = x_test.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
         x_concat = np.concatenate([x_test], axis=0)
         losses = []
         for x in x_concat:
@@ -99,7 +99,7 @@ def evaluate():
     else:
         print("testset shape : ", shape(x_test))
 
-        x_test = x_test.reshape(-1,128,128,1)
+        x_test = x_test.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
         x_concat = np.concatenate([x_test], axis=0)
         losses = []
         for x in x_concat:

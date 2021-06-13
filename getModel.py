@@ -1,14 +1,15 @@
+import argparse
+import os
 import shelve
 
 import keras
-from keras.utils import plot_model
 import numpy as np
-from keras.layers import Conv2DTranspose, BatchNormalization
+from keras.layers import BatchNormalization, Conv2DTranspose
 from keras.layers.convolutional import Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Sequential, load_model
+from keras.utils import plot_model
+
 import Config
-import os
-import argparse
 
 model_name = Config.MODEL_NAME
 re = re=Config.RELOAD_MODEL
@@ -24,11 +25,13 @@ def get_model(x_train):
         model = deep_autoencoder()
     elif model_name=='convolutional_autoencoder':
         model = convolutional_autoencoder()
+    elif model_name=='perfect_convolutional_autoencoder':
+        model = perfect_convolutional_autoencoder()
     else:
         raise ValueError('Unknown model name %s was given' % model_name)
 
     model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
-    x_train = x_train.reshape(-1,128,128,1)
+    x_train = x_train.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
 
     model.fit(
         x=x_train,
@@ -44,8 +47,9 @@ def get_model(x_train):
     del model
     return load_model(Config.MODEL_PATH)
 
+from keras.layers import Conv2D, Dense, MaxPool2D, UpSampling2D
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPool2D, UpSampling2D
+
 
 def autoencoder():
     input_shape=(784,)
@@ -81,13 +85,13 @@ def convolutional_autoencoder():
     return model
 
 def perfect_convolutional_autoencoder():
-    input_shape=(256,256,1)
+    input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     n_channels = input_shape[-1]
     model = Sequential()
-    model.add(Conv2D(256, (3,3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same', input_shape=input_shape))
     model.add(MaxPool2D(padding='same'))
-    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
-    model.add(MaxPool2D(padding='same'))
+    # model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    # model.add(MaxPool2D(padding='same'))
     model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
     model.add(MaxPool2D(padding='same'))
     model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
@@ -102,8 +106,8 @@ def perfect_convolutional_autoencoder():
     model.add(UpSampling2D())
     model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
     model.add(UpSampling2D())
+    # model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    # model.add(UpSampling2D())
     model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
-    model.add(UpSampling2D())
-    model.add(Conv2D(256, (3,3), activation='relu', padding='same'))
     model.add(Conv2D(n_channels, (3,3), activation='sigmoid', padding='same'))
     return model

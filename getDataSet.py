@@ -41,7 +41,7 @@ def get_dataset(re=Config.RELOAD_DATASET):
                 for c in sorted(listdir(join(Config.DATASET_PATH, f))):
                     if str(join(join(Config.DATASET_PATH, f), c))[-3:] == "tif":
                         img = cv2.imread(join(join(Config.DATASET_PATH, f), c), cv2.COLOR_BGR2GRAY)
-                        img.resize((128, 128))
+                        img.resize((Config.IMAGE_SHAPE_X, Config.IMAGE_SHAPE_Y))
                         img = np.array(img, dtype=np.float32)
                         img = img / 256.0
                         all_frames.append(img)
@@ -83,7 +83,7 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
         for c in sorted(listdir(join(Config.TESTSET_PATH, f))):
             if str(join(join(Config.TESTSET_PATH, f), c))[-3:] == "tif":
                 img = cv2.imread(join(join(Config.TESTSET_PATH, f), c), cv2.COLOR_BGR2GRAY)
-                img.resize((128, 128))
+                img.resize((Config.IMAGE_SHAPE_X, Config.IMAGE_SHAPE_Y))
                 img = np.array(img, dtype=np.float32)
                 img = img / 256.0
                 all_frames.append(img)
@@ -135,7 +135,7 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
 def get_single_frame(filename, single_test_case_name, test_set_path):
     path = Config.TESTSET_PATH +"/" + single_test_case_name + "/" + filename
     img = cv2.imread(path, cv2.COLOR_BGR2GRAY)
-    img.resize((128, 128))
+    img.resize((Config.IMAGE_SHAPE_X, Config.IMAGE_SHAPE_Y))
     img = np.array(img, dtype=np.float32)
     img = img / 256.0
     return img
