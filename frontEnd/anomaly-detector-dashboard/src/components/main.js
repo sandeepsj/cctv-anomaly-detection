@@ -219,7 +219,7 @@ export default function Main() {
         {page === CONST.PAGES_MODEL_CONFIGS ?
           <ModelConfigs classes={classes} configs={configs} setConfig={setConfig} />
           : page === CONST.PAGES_PATH_CONFIGS ?
-            <PathConfigs classes={classes} configs={configs} setConfig={setConfig} />
+            <PathConfigs setAnomalyRange={setAnomalyRange} setGraphData={setGraphData} classes={classes} configs={configs} setConfig={setConfig} setCurFrame={setCurFrame}/>
             : page === CONST.PAGES_OTHER_CONFIGS ?
               <OtherConfigs classes={classes} configs={configs} setConfig={setConfig} />
               : page === CONST.PAGES_DETECTOR ?

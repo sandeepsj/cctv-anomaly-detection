@@ -31,7 +31,10 @@ export default function otherConfigs(props) {
                                 defaultValue={configs.TESTSET_PATH}
                                 onChange={(event)=>{
                                     configs.TESTSET_PATH = event.target.value;
-                                    props.setConfig(configs)
+                                    props.setConfig(configs);
+                                    props.setGraphData([]);
+                                    props.setAnomalyRange({});
+                                    props.setCurFrame(1);
                                 }}
                             />
                         </Grid>
@@ -46,6 +49,9 @@ export default function otherConfigs(props) {
                                 onChange={(event)=>{
                                     configs.SINGLE_TEST_CASE_NAME = event.target.value;
                                     props.setConfig(configs)
+                                    props.setGraphData([]);
+                                    props.setAnomalyRange({});
+                                    props.setCurFrame(1);
                                 }}
                             />
                         </Grid>
