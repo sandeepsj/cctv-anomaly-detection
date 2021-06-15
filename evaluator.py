@@ -102,7 +102,12 @@ def evaluate():
         x_test = x_test.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
         x_concat = np.concatenate([x_test], axis=0)
         losses = []
+        i = 0
         for x in x_concat:
+            if i%200 == 0:
+                print("done", i//200)
+            i += 1
+
             # compule loss for each test sample
             x = np.expand_dims(x, axis=0)
             loss = model.test_on_batch(x, x)
@@ -113,10 +118,10 @@ def evaluate():
 
 
 def validate(frameRCost, t):
-        for (start, end) in t:
-            if frameRCost>=start and frameRCost<=end:
-                return True
-        return False
+    for (start, end) in t:
+        if frameRCost>=start and frameRCost<=end:
+            return True
+    return False
 
 
 def getAccuracy():
@@ -141,17 +146,20 @@ def getAccuracy():
         if threshold == None:
             threshold = mean(result) * Config.THRESHOLD_SCALING_FACTOR
         print("threshold of ", test, " >>> ", threshold)
+        frameCount = 1
         for cost in result:
             if cost >= threshold:
-                if validate(cost, target):
+                if validate(frameCount, target):
                     TP += 1
                     cur_TP += 1
             else:
-                if not validate(cost, target):
+                if not validate(frameCount, target):
                     FN += 1
                     cur_FN += 1
             TOTAL += 1
             cur_TOTAL += 1
+            frameCount += 1
+        print(cur_TP, cur_FN)
         cnt += 1
         cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
         print("accuracy for "+ test + " >>> ", cur_accuracy )

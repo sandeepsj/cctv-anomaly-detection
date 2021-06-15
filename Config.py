@@ -6,12 +6,12 @@ MODEL_PATH = "/home/sandeepsj/cctv-anomaly-detection/models"
 RESULT_PATH = "/home/sandeepsj/cctv-anomaly-detection/results"
 SINGLE_TEST_CASE_NAME = "Test036"
 CACHE_PATH = "cache"
-USE_SINGLE_TEST_CASE = True
+USE_SINGLE_TEST_CASE = False
 SINGLE_FRAME_EVALUATOR = False
 
 #Model Configs
-TESTSET_STRUCTURE = "dict" # ["dict", "array_seq"]
-MODEL_NAME = "convolutional_autoencoder" # ['autoencoder', 'deep_autoencoder', 'convolutional_autoencoder']
+TESTSET_STRUCTURE = "array_seq" # ["dict", "array_seq"]
+MODEL_NAME = "perfect_convolutional_autoencoder" # ['autoencoder', 'deep_autoencoder', 'convolutional_autoencoder', 'perfect_convolutional_autoencoder']
 OPTIMIZER = "adam" # ['adam','sgd','adagrad']
 LOSS = "mean_squared_error" # ['mean_squared_error', 'binary_crossentropy'], default='mean_squared_error')
 RELOAD_DATASET = False
@@ -22,11 +22,10 @@ BATCH_SIZE = 64
 EPOCHS = 10
 
 #Other Configs
-CALCULATE_THRESHOLD = False
+CALCULATE_THRESHOLD = True
 DISPAY_OUTPUT = False
-LOAD_RESULT_FROM_CACHE = False
+LOAD_RESULT_FROM_CACHE = True
 THRESHOLD_SCALING_FACTOR = 1.4
-THRESHOLD_VALUE = 0.005138367473606623
-IMAGE_SHAPE_X = 256
-IMAGE_SHAPE_Y = 256
-
+THRESHOLD_VALUE = 0.1 #0.007268916599438799 #0.005192083285313428
+IMAGE_SHAPE_X = 128
+IMAGE_SHAPE_Y = 128
