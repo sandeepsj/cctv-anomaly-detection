@@ -135,7 +135,7 @@ def validate(frameRCost, t):
     return False
 
 
-def getAccuracy():
+def getAccuracy(showLogs = True, threshold = None):
     resFile = open(Config.RESULT_PATH+"/result", "rb")
     results = pickle.load(resFile)
     resFile.close()
@@ -153,10 +153,12 @@ def getAccuracy():
         result = results[test]
         if (test[-3:] == "_gt"):
             continue
-        threshold = Config.THRESHOLD_VALUE * Config.THRESHOLD_SCALING_FACTOR
+        if threshold == None:
+            threshold = Config.THRESHOLD_VALUE * Config.THRESHOLD_SCALING_FACTOR
         if threshold == None:
             threshold = mean(result) * Config.THRESHOLD_SCALING_FACTOR
-        print("threshold of ", test, " >>> ", threshold)
+        if showLogs:
+            print("threshold of ", test, " >>> ", threshold)
         frameCount = 1
         for cost in result:
             if cost >= threshold:
@@ -170,16 +172,35 @@ def getAccuracy():
             TOTAL += 1
             cur_TOTAL += 1
             frameCount += 1
-        print(cur_TP, cur_FN)
+        if showLogs:
+            print(cur_TP, cur_FN)
         cnt += 1
         cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
-        print("accuracy for "+ test + " >>> ", cur_accuracy )
+        if showLogs:
+            print("accuracy for "+ test + " >>> ", cur_accuracy )
     accuracy = (TP + FN)/(TOTAL)
-    print("Overall Accuracy of the model >>> ", accuracy)
+    if showLogs:
+        print("Overall Accuracy of the model >>> ", accuracy)
     return accuracy
 
+def getBestThreshold():
+    bestAcc = 0
+    bestThresh = 0
+    for i in range(0, 10000):
+        i = i/100000
+        curAcc = getAccuracy(False, i)
+        if bestAcc < curAcc:
+            bestAcc = curAcc
+            bestThresh = i
+        #print("accuracy for", i, curAcc)
+    print("Threshold of:", bestThresh, "gives accuracy of", bestAcc, "\n thats the best of this model");
+
+    
+
 if __name__ == "__main__":
-    if Config.LOAD_RESULT_FROM_CACHE:
+    if (Config.FIND_BEST_THRESHOLD):
+        getBestThreshold()
+    elif Config.LOAD_RESULT_FROM_CACHE:
         getAccuracy()
     else:
         evaluate()
