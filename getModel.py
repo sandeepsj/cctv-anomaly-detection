@@ -19,7 +19,9 @@ def get_model(x_train):
     # cache = shelve.open(Config.CACHE_PATH + "model")
     if not re:
         return load_model(Config.MODEL_PATH)
-    if model_name=='autoencoder':
+    if Config.USE_BINARIZED_OPTICAL_FLOW:
+        model = binarized_optical_flow_model()
+    elif model_name=='autoencoder':
         model = autoencoder()
     elif model_name=='deep_autoencoder':
         model = deep_autoencoder()
@@ -86,6 +88,34 @@ def convolutional_autoencoder():
 
 def perfect_convolutional_autoencoder():
     input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
+    n_channels = input_shape[-1]
+    model = Sequential()
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(MaxPool2D(padding='same'))
+    # model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    # model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(16, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(8, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(16, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    # model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    # model.add(UpSampling2D())
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    model.add(Conv2D(n_channels, (3,3), activation='sigmoid', padding='same'))
+    return model
+
+def binarized_optical_flow_model():
+    input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,2)
     n_channels = input_shape[-1]
     model = Sequential()
     model.add(Conv2D(128, (3,3), activation='relu', padding='same', input_shape=input_shape))

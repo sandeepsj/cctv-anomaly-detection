@@ -24,10 +24,20 @@ def getSingleFrameCost(model, fileName, single_test_case_name, test_set_path):
     loss = model.test_on_batch(x, x)
     return loss
 
+def trainBinarizedOpticalFlows():
+    x_train = getDataSet.getBinarizedOpticalFlowFrames(False)
+
+
 def evaluate():
-    x_train = getDataSet.get_dataset()
-    print("dataset shape : ", shape(x_train))
-    print("data loaded ....................................100%")
+    if Config.USE_BINARIZED_OPTICAL_FLOW:
+        x_train = getDataSet.getBinarizedOpticalFlowFrames(True)
+        print("dataset shape : ", shape(x_train))
+        print("data loaded ....................................100%")
+        return
+    else:
+        x_train = getDataSet.get_dataset()
+        print("dataset shape : ", shape(x_train))
+        print("data loaded ....................................100%")
     model = getModel.get_model(x_train)
     print("model loaded ....................................100%")
     x_test = getDataSet.get_testset()
@@ -60,6 +70,7 @@ def evaluate():
         for dir in x_test:
             if Config.USE_SINGLE_TEST_CASE and dir != Config.SINGLE_TEST_CASE_NAME:
                 continue
+            print(dir)
             print("computing anomaly score and plotting for >>> " + dir)
             # compule loss for each test sample
             cur_test = np.array(x_test[dir])
