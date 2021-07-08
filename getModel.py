@@ -4,7 +4,8 @@ import shelve
 
 import keras
 import numpy as np
-from keras.layers import BatchNormalization, Conv2DTranspose
+from keras.layers import (LSTM, BatchNormalization, Conv2DTranspose, Dense,
+                          Dropout, Input, RepeatVector, TimeDistributed)
 from keras.layers.convolutional import Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Sequential, load_model
 from keras.utils import plot_model
@@ -21,20 +22,28 @@ def get_model(x_train):
         return load_model(Config.MODEL_PATH)
     if Config.USE_BINARIZED_OPTICAL_FLOW:
         model = binarized_optical_flow_model()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
     elif model_name=='autoencoder':
         model = autoencoder()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
     elif model_name=='deep_autoencoder':
         model = deep_autoencoder()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
     elif model_name=='convolutional_autoencoder':
         model = convolutional_autoencoder()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
     elif model_name=='perfect_convolutional_autoencoder':
         model = perfect_convolutional_autoencoder()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
+    elif model_name=='lstm_autoencoder':
+        model = lstm_autoencoder()
     else:
         raise ValueError('Unknown model name %s was given' % model_name)
 
-    model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
+    
     x_train = x_train.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
-
+    if model_name=='lstm_autoencoder':
+        x_train = x_train.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
     model.fit(
         x=x_train,
         y=x_train,
@@ -112,6 +121,20 @@ def perfect_convolutional_autoencoder():
     # model.add(UpSampling2D())
     model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
     model.add(Conv2D(n_channels, (3,3), activation='sigmoid', padding='same'))
+    return model
+
+def lstm_autoencoder():
+    input_shape=(Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
+    model = Sequential()
+    model.add(LSTM(128, activation='relu', input_shape=input_shape, return_sequences=True))
+    model.add(LSTM(64, activation='relu', return_sequences=False))
+    model.add(RepeatVector(input_shape[0]))
+    model.add(LSTM(64, activation='relu', return_sequences=True))
+    model.add(LSTM(128, activation='relu', return_sequences=True))
+    model.add(TimeDistributed(Dense(input_shape[1])))
+
+    model.compile(optimizer='adam', loss='mse')
+    model.summary()
     return model
 
 def binarized_optical_flow_model():

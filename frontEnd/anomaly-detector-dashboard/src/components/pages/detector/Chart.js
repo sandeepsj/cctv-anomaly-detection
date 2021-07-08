@@ -20,7 +20,7 @@ export default function Chart(props) {
           }}
         >
           <XAxis dataKey="frame" stroke={theme.palette.text.secondary} />
-          <YAxis stroke={theme.palette.text.secondary} domain={[0.003, 0.007]}>
+          <YAxis stroke={theme.palette.text.secondary} domain={[300, 700]}>
             <Label
               angle={270}
               position="left"

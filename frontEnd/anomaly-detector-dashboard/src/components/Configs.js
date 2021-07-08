@@ -2,7 +2,7 @@ const defConfig = {
     SINGLE_TEST_CASE_NAME: "Test036",
     //TESTSET_PATH: "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test"
     TESTSET_PATH: "/Test",
-    THRESHOLD_VALUE: 0.00272
+    THRESHOLD_VALUE: 510
 }
 
 const getSingleTestCaseFrame = function (configs, curFrame) {

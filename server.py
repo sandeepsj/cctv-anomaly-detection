@@ -34,7 +34,7 @@ def post():
     filename = getFileName(data["frame"])
     single_test_case_name = data["test_case"]
     test_set_path = data["test_set_path"]
-    cost = evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path)
+    cost = float(evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path))
     return jsonify({"rc": cost, "frame": data["frame"]})
 
 if __name__ == '__main__':

@@ -21,7 +21,9 @@ def getSingleFrameCost(model, fileName, single_test_case_name, test_set_path):
     cur_test = cur_test.reshape(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     x = cur_test
     x = np.expand_dims(x, axis=0)
-    loss = model.test_on_batch(x, x)
+    #loss = model.test_on_batch(x, x)
+    trainPredict = model.predict(x)
+    loss = np.sum(np.abs(trainPredict - x))
     return loss
 
 def trainBinarizedOpticalFlows():
@@ -74,13 +76,19 @@ def evaluate():
             print("computing anomaly score and plotting for >>> " + dir)
             # compule loss for each test sample
             cur_test = np.array(x_test[dir])
-            cur_test = cur_test.reshape(-1, Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
+            
+            if Config.MODEL_NAME == "lstm_autoencoder":
+                cur_test = cur_test.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
+            else:
+                cur_test = cur_test.reshape(-1, Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
             losses = []
             frameCount = 1
             imagePaths = []
             for x in cur_test:
                 x = np.expand_dims(x, axis=0)
-                loss = model.test_on_batch(x, x)
+                #loss = model.test_on_batch(x, x)
+                trainPredict = model.predict(x)
+                loss = np.sum(np.abs(trainPredict - x))
                 losses.append(loss)
                 # display frame and loss and wait for 0.1 sec
                 imagePaths.append(Config.TESTSET_PATH + "/"+dir+"/"+getFileName(frameCount))
@@ -145,6 +153,7 @@ def getAccuracy(showLogs = True, threshold = None):
     TP = 0
     FN = 0
     TOTAL = 0
+    bestCases = []
     for test in results:
         cur_TP = 0
         cur_FN = 0
@@ -157,10 +166,13 @@ def getAccuracy(showLogs = True, threshold = None):
             threshold = Config.THRESHOLD_VALUE * Config.THRESHOLD_SCALING_FACTOR
         if threshold == None:
             threshold = mean(result) * Config.THRESHOLD_SCALING_FACTOR
+        # threshold=480
         if showLogs:
             print("threshold of ", test, " >>> ", threshold)
         frameCount = 1
+        Sum = threshold
         for cost in result:
+            #threshold = (Sum + cost)/frameCount
             if cost >= threshold:
                 if validate(frameCount, target):
                     TP += 1
@@ -169,6 +181,7 @@ def getAccuracy(showLogs = True, threshold = None):
                 if not validate(frameCount, target):
                     FN += 1
                     cur_FN += 1
+            
             TOTAL += 1
             cur_TOTAL += 1
             frameCount += 1
@@ -176,23 +189,31 @@ def getAccuracy(showLogs = True, threshold = None):
             print(cur_TP, cur_FN)
         cnt += 1
         cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
+        if cur_accuracy>=0.80:
+            bestCases.append(test)
         if showLogs:
             print("accuracy for "+ test + " >>> ", cur_accuracy )
     accuracy = (TP + FN)/(TOTAL)
     if showLogs:
         print("Overall Accuracy of the model >>> ", accuracy)
-    return accuracy
+    return accuracy, bestCases
 
 def getBestThreshold():
     bestAcc = 0
     bestThresh = 0
-    for i in range(0, 10000):
-        i = i/100000
-        curAcc = getAccuracy(False, i)
+    bestToShow = {"threshold":0, "bestCases": 0, "cases":[]}
+    print("finding best threshold")
+    for i in range(100, 2000):
+        curAcc, bestCases = getAccuracy(False, i)
+        if bestToShow["bestCases"]<len(bestCases):
+            bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
         if bestAcc < curAcc:
+            print("New Best ***")
+            print("accuracy: ", curAcc, "Threshold: ", bestThresh)
             bestAcc = curAcc
             bestThresh = i
         #print("accuracy for", i, curAcc)
+    print(bestToShow)
     print("Threshold of:", bestThresh, "gives accuracy of", bestAcc, "\n thats the best of this model");
 
     

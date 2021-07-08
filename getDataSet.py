@@ -101,6 +101,8 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
                 # cv2.waitKey()
                 img = np.array(img, dtype=np.float32)
                 img = img / 256.0
+                if Config.MODEL_NAME == "lstm_autoencoder":
+                    img.resize((Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y))
                 all_frames.append(img)
         return all_frames
     
