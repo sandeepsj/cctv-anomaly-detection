@@ -39,9 +39,7 @@ TARGET = [  [(60, 152)],
 HappyCases = [4, 5, 6, 7, 10, 13, 14, 15, 16, 19, 24, 26, 27, 30, 36]
 LitCases = [6, 7, 10, 13, 14, 24, 30]
 showable = [10, 14, 24]
-finalShowable = {
-        'threshold': 510,
-        'bestCases': 9,
-        'cases':
-                ('Test002', 'Test006', 'Test007', 'Test010', 'Test014', 'Test016', 'Test030', 'Test031', 'Test036')
-        }
+finalShowable = {'threshold': 53,
+'bestCases': 14,
+'cases': ('Test001', 'Test002', 'Test006', 'Test007', 'Test008', 'Test010', 'Test013', 'Test020', 'Test025', 'Test030', 'Test031', 'Test032', 'Test033', 'Test036')
+}

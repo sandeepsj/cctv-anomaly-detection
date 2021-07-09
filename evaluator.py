@@ -84,17 +84,21 @@ def evaluate():
             losses = []
             frameCount = 1
             imagePaths = []
+            padding = float('inf')
             for x in cur_test:
                 x = np.expand_dims(x, axis=0)
                 #loss = model.test_on_batch(x, x)
                 trainPredict = model.predict(x)
                 loss = np.sum(np.abs(trainPredict - x))
+                padding = min(padding, loss)
                 losses.append(loss)
                 # display frame and loss and wait for 0.1 sec
                 imagePaths.append(Config.TESTSET_PATH + "/"+dir+"/"+getFileName(frameCount))
                 frameCount += 1
             if (Config.DISPAY_OUTPUT):
                 display.showImageVSPrediction(imagePaths, losses)
+            for i in range(len(losses)):
+                losses[i] = losses[i] - padding
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
         resFile = open(Config.RESULT_PATH+"/result", 'wb')
@@ -203,7 +207,7 @@ def getBestThreshold():
     bestThresh = 0
     bestToShow = {"threshold":0, "bestCases": 0, "cases":[]}
     print("finding best threshold")
-    for i in range(100, 2000):
+    for i in range(0, 200):
         curAcc, bestCases = getAccuracy(False, i)
         if bestToShow["bestCases"]<len(bestCases):
             bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
