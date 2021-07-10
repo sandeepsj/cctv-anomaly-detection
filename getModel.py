@@ -48,8 +48,12 @@ def get_model(x_train):
     if model_name=='lstm_autoencoder':
         x_train = x_train.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
     accuracyIndex = {}
-    with open("cachedaccuracyIndex", 'rb') as ind:
-        accuracyIndex = pickle.load(ind)
+    try:
+        with open("cachedaccuracyIndex", 'rb') as ind:
+            accuracyIndex = pickle.load(ind)
+    except:
+        accuracyIndex[0] = 0
+        print("starting fresh")
     for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
         print("Epoch ", i, "/",Config.EPOCHS)
         if i>0 or Config.RETRAIN_MODEL:
