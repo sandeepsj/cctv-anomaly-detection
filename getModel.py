@@ -52,7 +52,7 @@ def get_model(x_train):
         with open("cachedaccuracyIndex", 'rb') as ind:
             accuracyIndex = pickle.load(ind)
     except:
-        accuracyIndex[0] = 0
+        accuracyIndex[-1] = 0
         print("starting fresh")
     for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
         print("Epoch ", i, "/",Config.EPOCHS)
