@@ -1,9 +1,9 @@
 #Path Configs
-DATASET_PATH = "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Train"
-TESTSET_PATH = "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test"
-TARGET_PATH = "/home/sandeepsj/Downloads/ucsd_anomaly_dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test/UCSDped1.m"
-MODEL_PATH = "/home/sandeepsj/cctv-anomaly-detection/models"
-RESULT_PATH = "/home/sandeepsj/cctv-anomaly-detection/results"
+DATASET_PATH = "./dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Train"
+TESTSET_PATH = "./dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test"
+TARGET_PATH = "./dataset/UCSD_Anomaly_Dataset.v1p2/UCSDped1/Test/UCSDped1.m"
+MODEL_PATH = "./models"
+RESULT_PATH = "./results"
 SINGLE_TEST_CASE_NAME = "Test036"
 CACHE_PATH = "cache"
 USE_SINGLE_TEST_CASE = False
