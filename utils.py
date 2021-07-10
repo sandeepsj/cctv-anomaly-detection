@@ -5,7 +5,7 @@ import numpy as np
 from numpy.core.fromnumeric import mean, shape
 
 import Config
-import display
+#import display
 import getDataSet
 import getModel
 from target import TARGET
