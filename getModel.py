@@ -35,8 +35,9 @@ def get_model(x_train):
         model = convolutional_autoencoder()
         model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
     elif model_name=='perfect_convolutional_autoencoder':
-        model = con_autoEncoder_32() #con_autoEncoder_32() #perfect_convolutional_autoencoder()
+        model = perfect_convolutional_autoencoder() #con_autoEncoder_32() #perfect_convolutional_autoencoder()
         model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
+
     elif model_name=='lstm_autoencoder':
         model = lstm_autoencoder()
     else:
@@ -53,7 +54,7 @@ def get_model(x_train):
         print("Epoch ", i, "/",Config.EPOCHS)
         if i>0 or Config.RETRAIN_MODEL:
             if i == max(accuracyIndex.keys()) + 1:
-                print("Success")
+                print("retraining model from the existing model")
             model = load_model(Config.MODEL_PATH)
         model.fit(
             x=x_train,
@@ -112,6 +113,7 @@ def convolutional_autoencoder():
     return model
 
 def con_autoEncoder_32():
+    print("Gone case")
     input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     n_channels = input_shape[-1]
     model = Sequential()
@@ -123,6 +125,7 @@ def con_autoEncoder_32():
 
 
 def perfect_convolutional_autoencoder():
+    print("perfect_convolutional_autoencoder is loaded")
     input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     n_channels = input_shape[-1]
     model = Sequential()
