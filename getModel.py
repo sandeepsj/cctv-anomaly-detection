@@ -52,7 +52,7 @@ def get_model(x_train):
     for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
         print("Epoch ", i, "/",Config.EPOCHS)
         if i>0 or Config.RETRAIN_MODEL:
-            if i == 0:
+            if i == max(accuracyIndex.keys()) + 1:
                 print("Success")
             model = load_model(Config.MODEL_PATH)
         model.fit(
