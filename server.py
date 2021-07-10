@@ -1,3 +1,4 @@
+import pickle
 import random
 
 from flask import Flask, jsonify, request
@@ -15,6 +16,8 @@ def index():
 
 model = getModel.get_model(None)
 print("Model loaded....................................100%")
+with open('./cachedpadding', 'rb') as pickle_file:
+    pulpCache = pickle.load(pickle_file)
 
 def getFileName(frameCount):
     filename = "000.tif" 
@@ -34,7 +37,7 @@ def post():
     filename = getFileName(data["frame"])
     single_test_case_name = data["test_case"]
     test_set_path = data["test_set_path"]
-    cost = float(evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path))
+    cost = float(evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path)) - pulpCache[single_test_case_name]
     return jsonify({"rc": cost, "frame": data["frame"]})
 
 if __name__ == '__main__':

@@ -126,6 +126,7 @@ export default function Main() {
   const [curFrame, setCurFrame] = React.useState(1);
   const [graphData, setGraphData] = React.useState([])
   const [anomalyRange, setAnomalyRange] = React.useState({})
+  const [padding, setPadding] = React.useState(1000000000000000)
   
   const playVideo = (cur, end) =>{
     console.log(cur, end, "here");
@@ -137,7 +138,7 @@ export default function Main() {
     }
   }
 
-  const startVideoAndDetectAnomaly = (frame) => {
+  const startVideoAndDetectAnomaly = (frame, curPadding) => {
     if (frame < 200) {
       axios.post('/getRecustructionCost', {frame: frame, test_set_path: configs.TESTSET_PATH, test_case:configs.SINGLE_TEST_CASE_NAME})
       .then(
@@ -152,10 +153,17 @@ export default function Main() {
             }
             anomalyRange[firstAnomalousFrame[frameCount]] = frameCount;
           }
+          // if(curPadding > rc){
+          //   setPadding(rc)
+          //   curPadding = rc
+          // }
+          // else{
+          //   setPadding(curPadding)
+          // }
           setAnomalyRange(anomalyRange);
           setGraphData([...graphData]);
           setCurFrame(frame + 1);
-          startVideoAndDetectAnomaly(frame+1)
+          startVideoAndDetectAnomaly(frame+1, curPadding)
         }
       );      
       // setTimeout(() => , 300);
@@ -223,7 +231,7 @@ export default function Main() {
             : page === CONST.PAGES_OTHER_CONFIGS ?
               <OtherConfigs classes={classes} configs={configs} setConfig={setConfig} />
               : page === CONST.PAGES_DETECTOR ?
-                <Detector graphData={graphData} fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} curFrame={curFrame} startVideoAndDetectAnomaly={startVideoAndDetectAnomaly} anomalyRange={anomalyRange} playVideo={playVideo}/>
+                <Detector graphData={graphData} fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} curFrame={curFrame} startVideoAndDetectAnomaly={startVideoAndDetectAnomaly} anomalyRange={anomalyRange} playVideo={playVideo} padding={padding}/>
                 :
                 <Dashboard fixedHeightPaper={fixedHeightPaper} classes={classes} configs={configs} setConfig={setConfig} />
 
