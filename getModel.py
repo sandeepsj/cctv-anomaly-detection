@@ -63,8 +63,8 @@ def get_model(x_train):
         print("Epoch: ", i, "Accuracy: ", accuracyIndex[i])
         # delete model for saving memory
         del model
-    with open("cachedaccuracyIndex","wb") as f:
-        pickle.dump(accuracyIndex, f)
+        with open("cachedaccuracyIndex","wb") as f:
+            pickle.dump(accuracyIndex, f)
     return load_model(Config.MODEL_PATH)
 
 from keras.layers import Conv2D, Dense, MaxPool2D, UpSampling2D
