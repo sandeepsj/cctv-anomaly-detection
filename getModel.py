@@ -46,8 +46,10 @@ def get_model(x_train):
     x_train = x_train.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     if model_name=='lstm_autoencoder':
         x_train = x_train.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
-    
     accuracyIndex = {}
+    with open("accIndex", 'rb') as ind:
+        accuracyIndex = pickle.load(ind)
+    
     for i in range(Config.EPOCHS):
         if i>0 or Config.RETRAIN_MODEL:
             model = load_model(Config.MODEL_PATH)
