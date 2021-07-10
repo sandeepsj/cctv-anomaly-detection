@@ -49,7 +49,7 @@ def get_model(x_train):
     
     accuracyIndex = {}
     for i in range(Config.EPOCHS):
-        if i>0:
+        if i>0 or Config.RETRAIN_MODEL:
             model = load_model(Config.MODEL_PATH)
         
         model.fit(

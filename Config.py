@@ -17,6 +17,7 @@ LOSS = "mean_squared_error" # ['mean_squared_error', 'binary_crossentropy'], def
 RELOAD_DATASET = True
 RELOAD_TESTSET = True
 RELOAD_MODEL = True
+RETRAIN_MODEL = True
 USE_OPTICAL_FLOW = False
 BATCH_SIZE = 512
 EPOCHS = 100
