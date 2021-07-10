@@ -29,7 +29,7 @@ export default function Detector(props) {
             {/* Chart */}
             <Grid item xs={12} md={6} lg={6}>
                 <Paper className={fixedHeightPaper}>
-                    <Chart graphData = {props.graphData}/>
+                    <Chart graphData = {props.graphData} padding={props.padding}/>
                 </Paper>
             </Grid>
             <Button
@@ -37,7 +37,7 @@ export default function Detector(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={() => props.startVideoAndDetectAnomaly(props.curFrame)}
+                        onClick={() => props.startVideoAndDetectAnomaly(props.curFrame, 10000000000)}
                     >
                         Detect Anomaly
                     </Button>

@@ -12,7 +12,7 @@ import processor
 def get_dataset(re=Config.RELOAD_DATASET):
     cache = shelve.open(Config.CACHE_PATH + "dataset")
     if not re:
-          return  np.array(cache["dataset"])
+        return np.array(cache["dataset"])
     sz = 20
     opticalFlowClips = {}
     clips = []

@@ -3,7 +3,17 @@ import React from 'react';
 import { Label, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import Title from './Title';
 
-
+function getPaddedData(dataGraph, padding){
+  // const data = []
+  // for(var i = 0; i < dataGraph.length; i++){
+  //   data.push({
+  //     frame: dataGraph[i].frame,
+  //     reconstructionCost: dataGraph[i].reconstructionCost - padding
+  //   })
+  // }
+  // return(data)
+  return dataGraph
+}
 export default function Chart(props) {
   const theme = useTheme();
   return (
@@ -11,7 +21,7 @@ export default function Chart(props) {
       <Title>Frame vs Anomaly Score </Title>
       <ResponsiveContainer>
         <LineChart
-          data={props.graphData}
+          data={getPaddedData(props.graphData, props.padding)}
           margin={{
             top: 16,
             right: 16,
@@ -20,7 +30,7 @@ export default function Chart(props) {
           }}
         >
           <XAxis dataKey="frame" stroke={theme.palette.text.secondary} />
-          <YAxis stroke={theme.palette.text.secondary} domain={[300, 700]}>
+          <YAxis stroke={theme.palette.text.secondary} domain={[0, 100]}>
             <Label
               angle={270}
               position="left"

@@ -68,6 +68,7 @@ def evaluate():
     # test
     if Config.TESTSET_STRUCTURE == "dict" and not Config.CALCULATE_THRESHOLD:
         result = {}
+        paddingIndex = {}
         print("testset shape : ", shape(x_test))
         for dir in x_test:
             if Config.USE_SINGLE_TEST_CASE and dir != Config.SINGLE_TEST_CASE_NAME:
@@ -99,8 +100,11 @@ def evaluate():
                 display.showImageVSPrediction(imagePaths, losses)
             for i in range(len(losses)):
                 losses[i] = losses[i] - padding
+            paddingIndex[dir] = padding
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
+        with open("cachedpadding","wb") as f:
+            pickle.dump(paddingIndex, f)
         resFile = open(Config.RESULT_PATH+"/result", 'wb')
         print("about to dumb results")
         pickle.dump(result, resFile)
