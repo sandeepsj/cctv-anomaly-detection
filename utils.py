@@ -1,17 +1,13 @@
-import matplotlib
-import numpy as np
 
-import Config
-import getDataSet
-import getModel
-
-matplotlib.use('Agg')
 import pickle
 
-import matplotlib.pyplot as plt
+import numpy as np
 from numpy.core.fromnumeric import mean, shape
 
+import Config
 import display
+import getDataSet
+import getModel
 from target import TARGET
 
 
