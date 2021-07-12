@@ -51,9 +51,13 @@ def get_model(x_train):
     try:
         with open("cachedaccuracyIndex", 'rb') as ind:
             accuracyIndex = pickle.load(ind)
+            print("starting from", accuracyIndex)
     except:
         accuracyIndex[-1] = 0
         print("starting fresh")
+    maxAccuracy = 0
+    for epoch in accuracyIndex:
+        maxAccuracy = max(maxAccuracy, accuracyIndex[epoch])
     for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
         print("Epoch ", i, "/",Config.EPOCHS)
         if i>0 or Config.RETRAIN_MODEL:
@@ -69,6 +73,8 @@ def get_model(x_train):
         model.save(Config.MODEL_PATH)
         accuracyIndex[i] = utils.getModelAccuracy(model)
         print("Epoch: ", i, "Accuracy: ", accuracyIndex[i])
+        if maxAccuracy < accuracyIndex[i]:
+            model.save(Config.RESULT_PATH + "/bestModel")
         # delete model for saving memory
         del model
         with open("cachedaccuracyIndex","wb") as f:
