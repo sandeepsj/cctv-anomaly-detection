@@ -1,9 +1,18 @@
+import matplotlib
+import numpy as np
+
+import Config
+import getDataSet
+import getModel
+
+matplotlib.use('Agg')
 import pickle
 
-import numpy as np
+import matplotlib.pyplot as plt
 from numpy.core.fromnumeric import mean, shape
 
 import Config
+import display
 #import display
 import getDataSet
 import getModel
@@ -93,8 +102,8 @@ def evaluate():
                 frameCount += 1
             if (Config.DISPAY_OUTPUT):
                 display.showImageVSPrediction(imagePaths, losses)
-            for i in range(len(losses)):
-                losses[i] = losses[i] - padding
+            # for i in range(len(losses)):
+            #     losses[i] = losses[i] - padding
             paddingIndex[dir] = padding
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)

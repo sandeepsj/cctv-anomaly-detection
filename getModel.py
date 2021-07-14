@@ -47,38 +47,49 @@ def get_model(x_train):
     x_train = x_train.reshape(-1,Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
     if model_name=='lstm_autoencoder':
         x_train = x_train.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
-    accuracyIndex = {}
-    try:
-        with open("cachedaccuracyIndex", 'rb') as ind:
-            accuracyIndex = pickle.load(ind)
-            print("starting from", accuracyIndex)
-    except:
-        accuracyIndex[-1] = 0
-        print("starting fresh")
-    maxAccuracy = 0
-    for epoch in accuracyIndex:
-        maxAccuracy = max(maxAccuracy, accuracyIndex[epoch])
-    for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
-        print("Epoch ", i, "/",Config.EPOCHS)
-        if i>0 or Config.RETRAIN_MODEL:
-            if i == max(accuracyIndex.keys()) + 1:
-                print("retraining model from the existing model")
-            model = load_model(Config.MODEL_PATH)
+    
+    if Config.TRACE_ACCURACY:
+        accuracyIndex = {}
+        try:
+            with open("cachedaccuracyIndex", 'rb') as ind:
+                accuracyIndex = pickle.load(ind)
+                print("starting from", accuracyIndex)
+        except:
+            accuracyIndex[-1] = 0
+            print("starting fresh")
+        maxAccuracy = 0
+        for epoch in accuracyIndex:
+            maxAccuracy = max(maxAccuracy, accuracyIndex[epoch])
+        for i in range(max(accuracyIndex.keys()) + 1, Config.EPOCHS+1):
+            print("Epoch ", i, "/",Config.EPOCHS)
+            if i>0 or Config.RETRAIN_MODEL:
+                if i == max(accuracyIndex.keys()) + 1:
+                    print("retraining model from the existing model")
+                model = load_model(Config.MODEL_PATH)
+            model.fit(
+                x=x_train,
+                y=x_train,
+                epochs=1,
+                batch_size=Config.BATCH_SIZE
+            )
+            model.save(Config.MODEL_PATH)
+        
+            accuracyIndex[i] = utils.getModelAccuracy(model)
+            print("Epoch: ", i, "Accuracy: ", accuracyIndex[i])
+            if maxAccuracy < accuracyIndex[i]:
+                model.save(Config.RESULT_PATH + "/bestModel")
+            # delete model for saving memory
+            del model
+            with open("cachedaccuracyIndex","wb") as f:
+                pickle.dump(accuracyIndex, f)
+    else:
+        print("here no trace accuracy")
         model.fit(
             x=x_train,
             y=x_train,
-            epochs=1,
+            epochs=Config.EPOCHS,
             batch_size=Config.BATCH_SIZE
         )
-        model.save(Config.MODEL_PATH)
-        accuracyIndex[i] = utils.getModelAccuracy(model)
-        print("Epoch: ", i, "Accuracy: ", accuracyIndex[i])
-        if maxAccuracy < accuracyIndex[i]:
-            model.save(Config.RESULT_PATH + "/bestModel")
-        # delete model for saving memory
-        del model
-        with open("cachedaccuracyIndex","wb") as f:
-            pickle.dump(accuracyIndex, f)
     return load_model(Config.MODEL_PATH)
 
 from keras.layers import Conv2D, Dense, MaxPool2D, UpSampling2D
