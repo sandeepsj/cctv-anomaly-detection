@@ -215,7 +215,7 @@ def getBestThreshold():
     bestThresh = 0
     bestToShow = {"threshold":0, "bestCases": 0, "cases":[]}
     print("finding best threshold")
-    for i in range(0, 200):
+    for i in range(0, 2000):
         curAcc, bestCases = getAccuracy(False, i)
         if bestToShow["bestCases"]<len(bestCases):
             bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
@@ -228,10 +228,53 @@ def getBestThreshold():
     print(bestToShow)
     print("Threshold of:", bestThresh, "gives accuracy of", bestAcc, "\n thats the best of this model");
 
-    
+from target import TARGET
+
+
+def getRecursiveBestThreshold():
+    resFile = open(Config.RESULT_PATH+"/result", "rb")
+    results = pickle.load(resFile)
+    resFile.close()
+    cnt = 0
+    thresholds = {}
+    for test in results:
+        if test[-2:] == "gt":
+            continue
+        result = results[test]
+        target = TARGET[cnt]
+        bestAcc = 0
+        bestThresh = 0
+        for threshold in range(350, 2000):
+            frameCount = 1
+            TP = 0
+            FN = 0
+            total = 0
+            for cost in result:
+                if cost >= threshold:
+                    if validate(frameCount, target):
+                        TP += 1
+                else:
+                    if not validate(frameCount, target):
+                        FN += 1
+                frameCount += 1
+                total += 1
+            if total == 0:
+                break
+            acc = (FN+TP)/(total)
+            if acc>=bestAcc:
+                bestAcc = acc
+                bestThresh = threshold
+        if bestAcc> 0.70:
+            print("Testcase", test, "Accuracy", bestAcc, "withThresh", bestThresh)
+        thresholds[test] = bestThresh
+        cnt += 1
+    with open(Config.RESULT_PATH+"/cachedThresholds","wb") as f:
+        pickle.dump(thresholds, f)
 
 if __name__ == "__main__":
-    if (Config.FIND_BEST_THRESHOLD):
+    if (Config.FIND_RECURSIVE_THRESHOLD):
+        getRecursiveBestThreshold()
+    elif (Config.FIND_BEST_THRESHOLD):
         getBestThreshold()
     elif Config.LOAD_RESULT_FROM_CACHE:
         getAccuracy()

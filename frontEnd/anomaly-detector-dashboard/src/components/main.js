@@ -145,8 +145,9 @@ export default function Main() {
         response => {
           const frameCount = response.data.frame;
           const rc = response.data.rc;
+          const thresh = response.data.threshold;
           graphData.push(createDataPoint(frameCount, rc));
-          if(rc>defConfig.THRESHOLD_VALUE){
+          if(rc>thresh){
             firstAnomalousFrame[frameCount] = firstAnomalousFrame[frameCount-1];
             if (firstAnomalousFrame[frameCount] === undefined){
               firstAnomalousFrame[frameCount] = frameCount;
