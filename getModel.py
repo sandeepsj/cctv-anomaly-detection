@@ -37,6 +37,9 @@ def get_model(x_train):
     elif model_name=='perfect_convolutional_autoencoder':
         model = perfect_convolutional_autoencoder() #con_autoEncoder_32() #perfect_convolutional_autoencoder()
         model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
+    elif model_name=="perfect_convolutional_autoencoder256":
+        model = perfect_convolutional_autoencoder256() #con_autoEncoder_32() #perfect_convolutional_autoencoder()
+        model.compile(optimizer=Config.OPTIMIZER, loss=Config.LOSS)
 
     elif model_name=='lstm_autoencoder':
         model = lstm_autoencoder()
@@ -133,6 +136,34 @@ def con_autoEncoder_32():
     model.add(Conv2D(n_channels, (3,3), activation='sigmoid', padding='same'))
     return model
 
+def perfect_convolutional_autoencoder256():
+    print("perfect_convolutional_autoencoder is loaded")
+    input_shape=(Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y,1)
+    n_channels = input_shape[-1]
+    model = Sequential()
+    model.add(Conv2D(256, (3,3), activation='relu', padding='same', input_shape=input_shape))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(16, (3,3), activation='relu', padding='same'))
+    model.add(MaxPool2D(padding='same'))
+    model.add(Conv2D(8, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(16, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+    model.add(UpSampling2D())
+    model.add(Conv2D(256, (3,3), activation='relu', padding='same'))
+    model.add(Conv2D(n_channels, (3,3), activation='sigmoid', padding='same'))
+    return model
 
 def perfect_convolutional_autoencoder():
     print("perfect_convolutional_autoencoder is loaded")
