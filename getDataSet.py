@@ -65,6 +65,24 @@ def get_dataset(re=Config.RELOAD_DATASET):
     print("stored dataset to cache")
     return np.array(clips)
 
+def getAllFrames(folder):
+    all_frames = []
+    st = cv2.createBackgroundSubtractorMOG2()
+    for c in sorted(listdir(join(Config.TESTSET_PATH, folder))):
+        if str(join(join(Config.TESTSET_PATH, folder), c))[-3:] == "tif":
+            img = cv2.imread(join(join(Config.TESTSET_PATH, folder), c), cv2.COLOR_BGR2GRAY)
+            img = cv2.resize(img, (Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y), interpolation = cv2.INTER_CUBIC)
+            if Config.SUBTRACT_BACKGROUND:
+                img = st.apply(img)
+            # img.resize((Config.IMAGE_SHAPE_X, Config.IMAGE_SHAPE_Y)) WRONG CODE!!!!!!!!!!!!!!
+            # cv2.imshow("img allframe", img)
+            # cv2.waitKey()
+            img = np.array(img, dtype=np.float32)
+            img = img / 256.0
+            if Config.MODEL_NAME == "lstm_autoencoder":
+                img.resize((Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y))
+            all_frames.append(img)
+    return all_frames
 
 def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
     cache = shelve.open(Config.CACHE_PATH + "testset")
@@ -86,25 +104,6 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
         print("one more step")
         cache.close()
         print("stored testset to cache")
-    
-    def getAllFrames():
-        all_frames = []
-        st = cv2.createBackgroundSubtractorMOG2()
-        for c in sorted(listdir(join(Config.TESTSET_PATH, f))):
-            if str(join(join(Config.TESTSET_PATH, f), c))[-3:] == "tif":
-                img = cv2.imread(join(join(Config.TESTSET_PATH, f), c), cv2.COLOR_BGR2GRAY)
-                img = cv2.resize(img, (Config.IMAGE_SHAPE_X,Config.IMAGE_SHAPE_Y), interpolation = cv2.INTER_CUBIC)
-                if Config.SUBTRACT_BACKGROUND:
-                    img = st.apply(img)
-                # img.resize((Config.IMAGE_SHAPE_X, Config.IMAGE_SHAPE_Y)) WRONG CODE!!!!!!!!!!!!!!
-                # cv2.imshow("img allframe", img)
-                # cv2.waitKey()
-                img = np.array(img, dtype=np.float32)
-                img = img / 256.0
-                if Config.MODEL_NAME == "lstm_autoencoder":
-                    img.resize((Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y))
-                all_frames.append(img)
-        return all_frames
     
     def getAllOpticalFlowFrames():
         cnt = 0
@@ -131,7 +130,7 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
                 if Config.USE_OPTICAL_FLOW:
                     getAllOpticalFlowFrames()
                 else:
-                    all_frames = getAllFrames()
+                    all_frames = getAllFrames(f)
                     clips[f] = np.array(all_frames)
         savetocache()
         return clips
@@ -143,7 +142,7 @@ def get_testset(re=Config.RELOAD_TESTSET, structure = Config.TESTSET_STRUCTURE):
                 if Config.USE_OPTICAL_FLOW:
                     getAllOpticalFlowFrames()
                 else:
-                    all_frames = getAllFrames()
+                    all_frames = getAllFrames(f)
                     clips.extend(all_frames)
         savetocache()
         return np.array(clips)
@@ -210,3 +209,12 @@ def getBinarizedOpticalFlowFrames (reloadDataset):
     print("stored dataset to cache")
     print("shape of final dataset", np.shape(all_frames_opt))
     return all_frames_opt
+
+def get_lazy_testSet(testcase = None):
+    dirs = []
+    if testcase is None:
+        for f in sorted(listdir(Config.TESTSET_PATH)):
+            if isdir(join(Config.TESTSET_PATH, f)):
+                dirs.append(f)
+        return dirs
+    return getAllFrames(testcase)

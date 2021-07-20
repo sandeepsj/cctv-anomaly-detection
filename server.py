@@ -39,8 +39,8 @@ def post():
     filename = getFileName(data["frame"])
     single_test_case_name = data["test_case"]
     test_set_path = data["test_set_path"]
-    cost = float(evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path)) - 0#pulpCache[single_test_case_name]
-    return jsonify({"rc": cost, "frame": data["frame"], "threshold": thresholds[single_test_case_name]})
+    cost = float(evaluator.getSingleFrameCost(model, filename, single_test_case_name, test_set_path)) - pulpCache[single_test_case_name]
+    return jsonify({"rc": cost, "frame": data["frame"], "threshold": Config.THRESHOLD_VALUE})
 
 if __name__ == '__main__':
     app.run(debug=True)

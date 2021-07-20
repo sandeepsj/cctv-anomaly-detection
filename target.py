@@ -43,3 +43,12 @@ finalShowable = {'threshold': 53,
 'bestCases': 14,
 'cases': ('Test001', 'Test002', 'Test006', 'Test007', 'Test008', 'Test010', 'Test013', 'Test020', 'Test025', 'Test030', 'Test031', 'Test032', 'Test033', 'Test036')
 }
+
+# showable256epoch1 = {'threshold':1999,
+# "case": ("Test002", "Test005", "Test006", "Test007", "Test013", "Test014", "Test016", "Test022", "Test031", "Test032", "Test033")
+# }
+
+# a = {'threshold': 510, 'bestCases': 9, 'cases': ('Test002', 'Test006', 'Test007', 'Test010', 'Test014', 'Test016', 'Test030', 'Test031', 'Test036')}
+
+# a = {'threshold': 173, 'bestCases': 13,'cases': ('Test001', 'Test002', 'Test006', 'Test007', 'Test008', 'Test010', 'Test013', 'Test014', 'Test025', 'Test030', 'Test031', 'Test032', 'Test033')}
+# b = "Threshold of: 198 gives accuracy of 0.6602777777777777 "

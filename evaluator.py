@@ -35,19 +35,25 @@ def trainBinarizedOpticalFlows():
 
 
 def evaluate():
-    if Config.USE_BINARIZED_OPTICAL_FLOW:
-        x_train = getDataSet.getBinarizedOpticalFlowFrames(True)
-        print("dataset shape : ", shape(x_train))
-        print("data loaded ....................................100%")
-        return
-    else:
-        x_train = getDataSet.get_dataset()
-        print("dataset shape : ", shape(x_train))
-        print("data loaded ....................................100%")
+    x_train = None
+    if Config.RELOAD_MODEL:
+        if Config.USE_BINARIZED_OPTICAL_FLOW:
+            x_train = getDataSet.getBinarizedOpticalFlowFrames(True)
+            print("dataset shape : ", shape(x_train))
+            print("data loaded ....................................100%")
+            return
+        else:
+            x_train = getDataSet.get_dataset()
+            print("dataset shape : ", shape(x_train))
+            print("data loaded ....................................100%")
     model = getModel.get_model(x_train)
     print("model loaded ....................................100%")
-    x_test = getDataSet.get_testset()
-    print("testset loaded ....................................100%")
+    if Config.LAZY_LOADING:
+        x_test = getDataSet.get_lazy_testSet()
+        print("lazyloading test set ....................................100???%")
+    else:
+        x_test = getDataSet.get_testset()
+        print("testset loaded ....................................100%")
 
     # plot
     def plotLoss(reconstruction_cost, path=Config.RESULT_PATH):
@@ -80,7 +86,11 @@ def evaluate():
             print(dir)
             print("computing anomaly score and plotting for >>> " + dir)
             # compule loss for each test sample
-            cur_test = np.array(x_test[dir])
+            if Config.LAZY_LOADING:
+                cur_test = np.array(getDataSet.get_lazy_testSet(dir))
+                print(len(cur_test), "lazyloaded")
+            else:
+                cur_test = np.array(x_test[dir])
             
             if Config.MODEL_NAME == "lstm_autoencoder":
                 cur_test = cur_test.reshape(-1, Config.IMAGE_SHAPE_X*Config.IMAGE_SHAPE_Y,1)
@@ -102,8 +112,8 @@ def evaluate():
                 frameCount += 1
             if (Config.DISPAY_OUTPUT):
                 display.showImageVSPrediction(imagePaths, losses)
-            # for i in range(len(losses)):
-            #     losses[i] = losses[i] - padding
+            for i in range(len(losses)):
+                losses[i] = losses[i] - padding
             paddingIndex[dir] = padding
             result[dir] = losses
             plotLoss(losses, Config.RESULT_PATH + "/" + dir)
@@ -163,11 +173,15 @@ def getAccuracy(showLogs = True, threshold = None):
     
     cnt = 0
     TP = 0
+    TN = 0
+    FP = 0
     FN = 0
     TOTAL = 0
     bestCases = []
     for test in results:
         cur_TP = 0
+        cur_TN = 0
+        cur_FP = 0
         cur_FN = 0
         cur_TOTAL = 0
         target = TARGET[cnt]
@@ -189,41 +203,61 @@ def getAccuracy(showLogs = True, threshold = None):
                 if validate(frameCount, target):
                     TP += 1
                     cur_TP += 1
+                else:
+                    FP += 1
+                    cur_FP += 1
             else:
                 if not validate(frameCount, target):
+                    TN += 1
+                    cur_TN += 1
+                else:
                     FN += 1
                     cur_FN += 1
-            
             TOTAL += 1
             cur_TOTAL += 1
             frameCount += 1
         if showLogs:
-            print(cur_TP, cur_FN)
+            print(cur_TP, cur_TN)
         cnt += 1
-        cur_accuracy = (cur_FN+cur_TP)/(cur_TOTAL)
+        cur_accuracy = (cur_TN+cur_TP)/(cur_TOTAL)
         if cur_accuracy>=0.80:
             bestCases.append(test)
         if showLogs:
             print("accuracy for "+ test + " >>> ", cur_accuracy )
-    accuracy = (TP + FN)/(TOTAL)
+    accuracy = (TP + TN)/(TOTAL)
+    recall = TP / (TP + FN)
+    precision = TP / (TP + FP)
+    F1Score = 2 * (precision * recall)/(precision + recall)
     if showLogs:
         print("Overall Accuracy of the model >>> ", accuracy)
-    return accuracy, bestCases
+        print("Overall recall of the model >>> ", recall)
+        print("Overall precision of the model >>> ", precision)
+        print("Overall F1Score of the model >>> ", F1Score)
+    return accuracy, bestCases, accuracy, recall, precision, F1Score
 
 def getBestThreshold():
     bestAcc = 0
     bestThresh = 0
     bestToShow = {"threshold":0, "bestCases": 0, "cases":[]}
     print("finding best threshold")
-    for i in range(0, 2000):
-        curAcc, bestCases = getAccuracy(False, i)
-        if bestToShow["bestCases"]<len(bestCases):
-            bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
-        if bestAcc < curAcc:
-            print("New Best ***")
-            print("accuracy: ", curAcc, "Threshold: ", bestThresh)
-            bestAcc = curAcc
-            bestThresh = i
+    for i in range(0, 200):
+        curAcc, bestCases, accuracy, recall, precision, F1Score = getAccuracy(False, i)
+        if Config.BEST_F1SCORE:
+            if bestToShow["bestCases"]<len(bestCases):
+                bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
+            if bestAcc < F1Score:
+                print("New Best ***")
+                print("f1 score: ", F1Score, "Threshold: ", bestThresh)
+                bestAcc = F1Score
+                bestThresh = i
+        else:
+            if bestToShow["bestCases"]<len(bestCases):
+                bestToShow = {"threshold":i, "bestCases":len(bestCases), "cases":tuple(bestCases)}
+            if bestAcc < curAcc:
+                print("New Best ***")
+                print("accuracy: ", curAcc, "Threshold: ", bestThresh)
+                bestAcc = curAcc
+                bestThresh = i
         #print("accuracy for", i, curAcc)
     print(bestToShow)
     print("Threshold of:", bestThresh, "gives accuracy of", bestAcc, "\n thats the best of this model");
